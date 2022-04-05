@@ -1,27 +1,22 @@
+import os
 import cv2
-import numpy as np
 
-IMAGE_FILES = [r"C:\Users\Tori\Documents\ASL Detector\asl_dataset\a\hand1_a_bot_seg_1_cropped.jpeg", r"C:\Users\Tori\Documents\ASL Detector\asl_dataset\a\hand1_a_bot_seg_2_cropped.jpeg"]
+def read_files():
+    file_list, sub_list = [], []
+    start_dir = r"C:\Users\Tori\Documents\ASL Detector\asl_dataset"                                                                                               
+    subdirs = [x[0] for x in os.walk(start_dir)]                                                                      
+    for subdir in subdirs:       
+        print(subdir)                                                                                     
+        files = os.walk(subdir).__next__()[2]                                                                             
+        if (len(files) > 0):                                                                                          
+            for file in files:               
+                #sub_list.append(str(subdir)[-1])                                                                       
+                file_list.append(os.path.join(subdir, file)) 
+                sub_list.append(str(subdir)[-1]) 
+    zipped = zip(file_list, sub_list)
+    return zipped
 
-dimensions = (800,800)
+files_subs = read_files()
+for files, sub in files_subs:
+    print(files + " from: " + sub)
 
-
-
-for idx, file in enumerate(IMAGE_FILES):
-  # Read an image, flip it around y-axis for correct handedness output (see
-  # above).
-  print(file)
-  img = cv2.imread(file)
-  resized = cv2.resize(img, dimensions, interpolation = cv2.INTER_AREA)
-  #image = cv2.flip(cv2.imread(file), 1)
-  cv2.imshow("window", img)
-  cv2.waitKey(5)
-
-
-  
-while True:
-
-    if 0xFF == 27:
-      break
-
-cv2.destroyAllWindows()
