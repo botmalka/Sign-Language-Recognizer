@@ -53,7 +53,8 @@ def scale(Ax, Ay, Bx, By, Cx, Cy):
     return round(sqrt(((float(Bx) - (float(Ax) + float(Cx))/2)**2) + (float(By) - (float(Ay) + float(Cy))/2)**2))
 
 def distance(Ax, Ay, Bx, By):
-    return sqrt(Ax) #update to distance formula later on
+    dist = sqrt(((Ay-By)**2)+((Ax-By)**2))
+    return dist
 
 
 # For webcam input:
