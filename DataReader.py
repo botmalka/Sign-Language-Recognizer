@@ -1,8 +1,5 @@
 import cv2
 import mediapipe as mp
-# import tensorflow as tf
-# from tensorflow import keras
-# import numpy as np
 import pandas as pd
 import os
 from math import sqrt
@@ -17,7 +14,6 @@ def read_files(dataset_directory):
         files = os.walk(subdir).__next__()[2]                                                                             
         if (len(files) > 0):                                                                                          
             for file in files:               
-                #sub_list.append(str(subdir)[-1])                                                                       
                 file_list.append(os.path.join(subdir, file)) 
                 sub_list.append(str(subdir)[-1]) 
     zipped = zip(file_list, sub_list)
@@ -35,7 +31,8 @@ def distance(point_1, point_2):
 mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
 mp_hands = mp.solutions.hands
-df = pd.DataFrame() #makes a dataframe to later save as csv for data output
+distance_list = []
+df = pd.DataFrame(columns = range(21)) #makes a dataframe to later save as csv for data output
 
 files_subs = read_files(asl_dataset_directory)
 with mp_hands.Hands(
@@ -69,6 +66,31 @@ with mp_hands.Hands(
             size_factor = scale(pinky_palm[0],pinky_palm[1],wrist[0],wrist[1],pointer_palm[0],pointer_palm[1])         
             
             #creates a 20 item list to append to the dataframe, containing various distance points scaled to each hand
-            print(distance(pinky_tip, wrist) / size_factor)
+            #distance_list[0] = sub
+            distance_list = [
+                sub, #letter or number represented, taken from the folder name
+                distance(wrist, thumb_tip) / size_factor, #datapoints 1-20, scaled by hand size
+                distance(wrist, pointer_tip) / size_factor,
+                distance(wrist, middle_tip) / size_factor,
+                distance(wrist, ring_tip) / size_factor,
+                distance(wrist, pinky_tip) / size_factor,
+                distance(thumb_tip, pointer_tip) / size_factor,
+                distance(thumb_tip, middle_tip) / size_factor,
+                distance(thumb_tip, ring_tip) / size_factor,
+                distance(thumb_tip, pinky_tip) / size_factor,
+                distance(middle_tip, ring_tip) / size_factor,
+                distance(middle_tip, pinky_tip) / size_factor,
+                distance(pointer_palm, pointer_tip) / size_factor,
+                distance(pointer_palm, middle_tip) / size_factor,
+                distance(pointer_palm, ring_tip) / size_factor,
+                distance(pointer_palm, pinky_tip) / size_factor,
+                distance(pinky_palm, pointer_tip) / size_factor,
+                distance(pinky_palm, middle_tip) / size_factor,
+                distance(pinky_palm, ring_tip) / size_factor,
+                distance(pinky_palm, pinky_tip) / size_factor,
+                distance(pointer_palm, pinky_palm) / size_factor
+                ]
+            df = df.append(pd.Series(distance_list, index = df.columns), ignore_index=True)
+            print(distance_list)
 
-
+df.to_csv(asl_dataset_directory + ".csv", header=False, index=False)
