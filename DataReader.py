@@ -3,6 +3,7 @@ import mediapipe as mp
 import pandas as pd
 import os
 from math import sqrt
+
 #sets the directory to load the images from, each being in a alphanumeric subfolder (a-z, 0-9)
 asl_dataset_directory = r"C:\Users\Tori\Documents\ASL Detector\asl_dataset"  
 
@@ -27,24 +28,28 @@ def distance(point_1, point_2):
 #standard Euclidian distance formula for points (point_1[0], point_1[1]) and (point_2[0], point_2[1])
     return round(sqrt((point_1[0]-point_2[0])**2 + (point_1[1] + point_2[1])**2), 2)
 
+def angle(point_1, point_2):
+#returns the slope between 2 points as a +/- decimal
+    return round((point_1[1]-point_2[1])/(point_1[0]-point_2[0]), 4)
+
 #variable declaration and start of main code
 mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
 mp_hands = mp.solutions.hands
-distance_list = []
+angle_list = []
 df = pd.DataFrame(columns = range(21)) #makes a dataframe to later save as csv for data output
 
 files_subs = read_files(asl_dataset_directory)
 with mp_hands.Hands(
     static_image_mode=True, 
     max_num_hands=1,
-    min_detection_confidence=0.5) as hands:
+    min_detection_confidence=0.8) as hands:
     for file, sub in files_subs:
         
-        # Read an image, flip it around y-axis for correct handedness output (see above).
+        #read an image, flip it around y-axis for correct handedness output (see above).
         img_flipped = cv2.imread(file)
         img = cv2.flip(img_flipped, 1)
-        # Convert the BGR image to RGB before processing.
+        #convert the BGR image to RGB before processing.
         results = hands.process(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
 
         #skips to the next picture if no hand found
@@ -63,34 +68,32 @@ with mp_hands.Hands(
             ring_tip = (hand_landmarks.landmark[mp_hands.HandLandmark.RING_FINGER_TIP].x * image_width, hand_landmarks.landmark[mp_hands.HandLandmark.RING_FINGER_TIP].y * image_height)
             pinky_palm = (hand_landmarks.landmark[mp_hands.HandLandmark.PINKY_MCP].x * image_width, hand_landmarks.landmark[mp_hands.HandLandmark.PINKY_MCP].y * image_height)
             pinky_tip = (hand_landmarks.landmark[mp_hands.HandLandmark.PINKY_TIP].x * image_width, hand_landmarks.landmark[mp_hands.HandLandmark.PINKY_TIP].y * image_height)
-            size_factor = scale(pinky_palm[0],pinky_palm[1],wrist[0],wrist[1],pointer_palm[0],pointer_palm[1])         
             
             #creates a 20 item list to append to the dataframe, containing various distance points scaled to each hand
-            #distance_list[0] = sub
-            distance_list = [
+            angle_list = [
                 sub, #letter or number represented, taken from the folder name
-                distance(wrist, thumb_tip) / size_factor, #datapoints 1-20, scaled by hand size
-                distance(wrist, pointer_tip) / size_factor,
-                distance(wrist, middle_tip) / size_factor,
-                distance(wrist, ring_tip) / size_factor,
-                distance(wrist, pinky_tip) / size_factor,
-                distance(thumb_tip, pointer_tip) / size_factor,
-                distance(thumb_tip, middle_tip) / size_factor,
-                distance(thumb_tip, ring_tip) / size_factor,
-                distance(thumb_tip, pinky_tip) / size_factor,
-                distance(middle_tip, ring_tip) / size_factor,
-                distance(middle_tip, pinky_tip) / size_factor,
-                distance(pointer_palm, pointer_tip) / size_factor,
-                distance(pointer_palm, middle_tip) / size_factor,
-                distance(pointer_palm, ring_tip) / size_factor,
-                distance(pointer_palm, pinky_tip) / size_factor,
-                distance(pinky_palm, pointer_tip) / size_factor,
-                distance(pinky_palm, middle_tip) / size_factor,
-                distance(pinky_palm, ring_tip) / size_factor,
-                distance(pinky_palm, pinky_tip) / size_factor,
-                distance(pointer_palm, pinky_palm) / size_factor
+                angle(wrist, thumb_tip), #datapoints 1-20, scaled by hand size
+                angle(wrist, pointer_tip),
+                angle(wrist, middle_tip),
+                angle(wrist, ring_tip),
+                angle(wrist, pinky_tip),
+                angle(thumb_tip, pointer_tip),
+                angle(thumb_tip, middle_tip),
+                angle(thumb_tip, ring_tip),
+                angle(thumb_tip, pinky_tip),
+                angle(middle_tip, ring_tip),
+                angle(middle_tip, pinky_tip),
+                angle(pointer_palm, pointer_tip),
+                angle(pointer_palm, middle_tip),
+                angle(pointer_palm, ring_tip),
+                angle(pointer_palm, pinky_tip),
+                angle(pinky_palm, pointer_tip),
+                angle(pinky_palm, middle_tip),
+                angle(pinky_palm, ring_tip),
+                angle(pinky_palm, pinky_tip),
+                angle(pointer_palm, pinky_palm)
                 ]
-            df = df.append(pd.Series(distance_list, index = df.columns), ignore_index=True)
-            print(distance_list)
+            df = df.append(pd.Series(angle_list, index = df.columns), ignore_index=True)
+            print(angle_list)
 
 df.to_csv(asl_dataset_directory + ".csv", header=False, index=False)
