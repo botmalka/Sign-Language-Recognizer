@@ -46,10 +46,10 @@ with mp_hands.Hands(
     min_detection_confidence=0.8) as hands:
     for file, sub in files_subs:
         
-        # Read an image, flip it around y-axis for correct handedness output (see above).
+        #read an image, flip it around y-axis for correct handedness output (see above).
         img_flipped = cv2.imread(file)
         img = cv2.flip(img_flipped, 1)
-        # Convert the BGR image to RGB before processing.
+        #convert the BGR image to RGB before processing.
         results = hands.process(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
 
         #skips to the next picture if no hand found
@@ -68,10 +68,8 @@ with mp_hands.Hands(
             ring_tip = (hand_landmarks.landmark[mp_hands.HandLandmark.RING_FINGER_TIP].x * image_width, hand_landmarks.landmark[mp_hands.HandLandmark.RING_FINGER_TIP].y * image_height)
             pinky_palm = (hand_landmarks.landmark[mp_hands.HandLandmark.PINKY_MCP].x * image_width, hand_landmarks.landmark[mp_hands.HandLandmark.PINKY_MCP].y * image_height)
             pinky_tip = (hand_landmarks.landmark[mp_hands.HandLandmark.PINKY_TIP].x * image_width, hand_landmarks.landmark[mp_hands.HandLandmark.PINKY_TIP].y * image_height)
-            #size_factor = scale(pinky_palm[0],pinky_palm[1],wrist[0],wrist[1],pointer_palm[0],pointer_palm[1])         
             
             #creates a 20 item list to append to the dataframe, containing various distance points scaled to each hand
-            #angle_list[0] = sub
             angle_list = [
                 sub, #letter or number represented, taken from the folder name
                 angle(wrist, thumb_tip), #datapoints 1-20, scaled by hand size
