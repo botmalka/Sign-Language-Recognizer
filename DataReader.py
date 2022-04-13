@@ -16,7 +16,7 @@ def read_files(dataset_directory):
         if (len(files) > 0):                                                                                          
             for file in files:               
                 file_list.append(os.path.join(subdir, file)) 
-                sub_list.append(str(subdir)[-1]) #.append(str(subdir)[-1])
+                sub_list.append(str(subdir)[-1]) 
     zipped = zip(file_list, sub_list)
     return zipped
     
