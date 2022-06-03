@@ -7,4 +7,5 @@ DataReader.py reads and converts any sign language image dataset to tabular data
 
 CameraReader.py uses OpenCV to read input from the camera, pandas for data manipulation, and skikit-learn to compare the current input to the tabular data collected by DataReader. A K-nearest neighbor algorithm is run to compare the visible hand to the dataset and outputs text to the console
 
+Note: "h" is being written to the console in the repeatedly (look below the hand)
 ![This is a sample of the application showing the letter H](https://raw.githubusercontent.com/botmalka/Sign-Language-Recognizer/main/ASL-H.png "The ASL letter H")
